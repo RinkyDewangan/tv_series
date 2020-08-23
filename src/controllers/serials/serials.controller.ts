@@ -26,11 +26,11 @@ class SerialsController implements base {
         }
 
     getTopEpisodes= (req: Request, res: Response) => {
-        if(req.params.SeriesId && parseInt(req.params.SeriesId)){
+        if(req.params.SeriesId && req.params.SeriesId !== undefined && parseInt(req.params.SeriesId) > 0){
             let url = `${config.uriPath}/tv/${req.params.SeriesId}?api_key=${config.api_key}&language=en-US`
             axios.get(url)
             .then((response:any) => {
-                if(!response) return res.status(404).send("No Tv Serial found with that Id")
+                if(!response || response["status_code"] === 34) return res.status(404).send("No Tv Serial found with that Id")
                 else{
                     let linksArr = response.data.seasons.map((val:any)=> `${config.uriPath}/tv/${response.data.id}/season/${val.season_number}?api_key=${config.api_key}&language=en-US`);
                     let promiseArray = linksArr.map( (url:string)=> axios.get(url) );
@@ -54,7 +54,7 @@ class SerialsController implements base {
             .catch((error:any) => {
             return res.status(500).send(error)
             });
-        } else return res.status(400).send("No Series Id found in query params")
+        } else return res.status(400).send("Series Id cannot be zero or negative value")
     }
     getTopFiveSerials = (req: Request, res: Response) => {
         let db = req.app.get('db')

@@ -18,8 +18,6 @@ RUN npm install
 
 RUN npm run build
 
-COPY src/config.json ./dist/config.json
-
 EXPOSE 5000
 
 CMD ["npm","start"]

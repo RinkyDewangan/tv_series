@@ -29,11 +29,11 @@ class SerialsController {
     constructor() {
         this.router = express.Router();
         this.getTopEpisodes = (req, res) => {
-            if (req.params.SeriesId && parseInt(req.params.SeriesId)) {
+            if (req.params.SeriesId && req.params.SeriesId !== undefined && parseInt(req.params.SeriesId) > 0) {
                 let url = `${config.uriPath}/tv/${req.params.SeriesId}?api_key=${config.api_key}&language=en-US`;
                 axios_1.default.get(url)
                     .then((response) => {
-                    if (!response)
+                    if (!response || response["status_code"] === 34)
                         return res.status(404).send("No Tv Serial found with that Id");
                     else {
                         let linksArr = response.data.seasons.map((val) => `${config.uriPath}/tv/${response.data.id}/season/${val.season_number}?api_key=${config.api_key}&language=en-US`);
@@ -62,7 +62,7 @@ class SerialsController {
                 });
             }
             else
-                return res.status(400).send("No Series Id found in query params");
+                return res.status(400).send("Series Id cannot be zero or negative value");
         };
         this.getTopFiveSerials = (req, res) => {
             let db = req.app.get('db');

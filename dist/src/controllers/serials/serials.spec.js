@@ -13,10 +13,10 @@ describe('GET /topEpisodes', function () {
     });
     it('responds with error message', function (done) {
         supertest('http://localhost:5000')
-            .get('/topEpisodes/')
+            .get('/topEpisodes/0')
             .set('Accept', 'application/json')
             .expect(400)
-            .expect('"No Series Id found in query params"');
+            .expect('"Series Id cannot be zero or negative value"');
         done();
     });
 });
