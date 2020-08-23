@@ -24,8 +24,14 @@ To build dist folder.
 The api to be executed for the same after building the project is:
 http://locahost:5000/loadData
 
-#### DB attached : `mongodb://localhost:27017/tvSerials`
+### DB attached : `mongodb://localhost:27017/tvSerials`
 
-#### MongoDB collection used : `tvShows`
+### MongoDB collection used : `tvShows`
+
+### Pre Requisites 
+Node , npm , mongodb and typescript should be installed in the system before running this app.
+
+### Note
+`In order for docker to run the typescript code efficiently an empty a.ts file has been added`
 
 # tv_series

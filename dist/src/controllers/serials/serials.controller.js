@@ -29,36 +29,40 @@ class SerialsController {
     constructor() {
         this.router = express.Router();
         this.getTopEpisodes = (req, res) => {
-            let url = `${config.uriPath}/tv/${req.params.SeriesId}?api_key=${config.api_key}&language=en-US`;
-            axios_1.default.get(url)
-                .then((response) => {
-                if (!response)
-                    return res.status(404).send("No Tv Serial found with that Id");
-                else {
-                    let linksArr = response.data.seasons.map((val) => `${config.uriPath}/tv/${response.data.id}/season/${val.season_number}?api_key=${config.api_key}&language=en-US`);
-                    let promiseArray = linksArr.map((url) => axios_1.default.get(url));
-                    axios_1.default.all(promiseArray)
-                        .then(axios_1.default.spread((...results) => {
-                        if (!results || results.length < 1)
-                            return res.status(404).send("No Episodes found for the TV Serial");
-                        else {
-                            let nestedArr = results.map((e) => {
-                                if (e.data && e.data.episodes)
-                                    return e.data.episodes;
-                            });
-                            let flatArr = this.highestRatings(nestedArr.reduce((acc, it) => [...acc, ...it])).reverse();
-                            let topArr = flatArr.slice(0, 20);
-                            return res.send(topArr);
-                        }
-                    }))
-                        .catch(error => {
-                        return res.send(error);
-                    });
-                }
-            })
-                .catch((error) => {
-                return res.send(error);
-            });
+            if (req.params.SeriesId && parseInt(req.params.SeriesId)) {
+                let url = `${config.uriPath}/tv/${req.params.SeriesId}?api_key=${config.api_key}&language=en-US`;
+                axios_1.default.get(url)
+                    .then((response) => {
+                    if (!response)
+                        return res.status(404).send("No Tv Serial found with that Id");
+                    else {
+                        let linksArr = response.data.seasons.map((val) => `${config.uriPath}/tv/${response.data.id}/season/${val.season_number}?api_key=${config.api_key}&language=en-US`);
+                        let promiseArray = linksArr.map((url) => axios_1.default.get(url));
+                        axios_1.default.all(promiseArray)
+                            .then(axios_1.default.spread((...results) => {
+                            if (!results || results.length < 1)
+                                return res.status(404).send("No Episodes found for the TV Serial");
+                            else {
+                                let nestedArr = results.map((e) => {
+                                    if (e.data && e.data.episodes)
+                                        return e.data.episodes;
+                                });
+                                let flatArr = this.highestRatings(nestedArr.reduce((acc, it) => [...acc, ...it])).reverse();
+                                let topArr = flatArr.slice(0, 20);
+                                return res.status(200).send(topArr);
+                            }
+                        }))
+                            .catch(error => {
+                            return res.status(500).send(error);
+                        });
+                    }
+                })
+                    .catch((error) => {
+                    return res.status(500).send(error);
+                });
+            }
+            else
+                return res.status(400).send("No Series Id found in query params");
         };
         this.getTopFiveSerials = (req, res) => {
             let db = req.app.get('db');
@@ -69,11 +73,11 @@ class SerialsController {
             ]).toArray();
             k.then((results) => {
                 if (!results || results.length < 1)
-                    return res.send("No records found");
+                    return res.status(400).send("No records found");
                 else
-                    return res.send(results);
+                    return res.status(200).send(results);
             }).catch((error) => {
-                return res.send(error);
+                return res.status(500).send(error);
             });
         };
         // To be executed only once , data duplicacy is not handled...//
